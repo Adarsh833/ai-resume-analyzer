@@ -1,7 +1,7 @@
 import {Link} from "react-router";
 
-const Navbar:()=>Element=()=>{
-    return(
+const Navbar = () => {
+    return (
         <nav className="navbar">
             <Link to="/">
                 <p className="text-2xl font-bold text-gradient">RESUMIND</p>
@@ -12,5 +12,4 @@ const Navbar:()=>Element=()=>{
         </nav>
     )
 }
-
-export default Navbar;
+export default Navbar
