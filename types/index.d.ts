@@ -1,19 +1,3 @@
-interface Job {
-    title: string;
-    description: string;
-    location: string;
-    requiredSkills: string[];
-}
-
-interface Resume {
-    id: string;
-    companyName?: string;
-    jobTitle?: string;
-    imagePath: string;
-    resumePath: string;
-    feedback: Feedback;
-}
-
 interface Feedback {
     overallScore: number;
     ATS: {
@@ -53,6 +37,13 @@ interface Feedback {
             type: "good" | "improve";
             tip: string;
             explanation: string;
+        }[];
+        learningPath?: { // This is the correct location
+            skill: string;
+            resources: {
+                title: string;
+                url: string;
+            }[];
         }[];
     };
 }

@@ -55,9 +55,10 @@ const CategoryHeader = ({
 };
 
 const CategoryContent = ({
-                             tips,
+                             tips, learningPath,
                          }: {
     tips: { type: "good" | "improve"; tip: string; explanation: string }[];
+    learningPath?:{skill:string; resources:{title:string;url:string;}[]}[];
 }) => {
     return (
         <div className="flex flex-col gap-4 items-center w-full">
@@ -102,6 +103,30 @@ const CategoryContent = ({
                     </div>
                 ))}
             </div>
+
+            {learningPath && learningPath.length > 0 && (
+                <div className="flex flex-col gap-4 w-full mt-4">
+                    <h3 className="text-2xl font-bold">Skills to Improve</h3>
+                    {learningPath.map((path, index) => (
+                        <div key={index} className="flex flex-col gap-2 rounded-2xl p-4 bg-yellow-50 border border-yellow-200 text-yellow-700">
+                            <div className="flex flex-row gap-2 items-center">
+                                <img src="/icons/warning.svg" alt="warning" className="size-5" />
+                                <p className="text-xl font-semibold">{path.skill}</p>
+                            </div>
+                            <p className="font-medium">Recommended Resources:</p>
+                            <ul className="list-disc list-inside">
+                                {path.resources.map((resource, resIndex) => (
+                                    <li key={resIndex}>
+                                        <a href={resource.url} target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">
+                                            {resource.title}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
@@ -151,7 +176,10 @@ const Details = ({ feedback }: { feedback: Feedback }) => {
                         />
                     </AccordionHeader>
                     <AccordionContent itemId="skills">
-                        <CategoryContent tips={feedback.skills.tips} />
+                        <CategoryContent
+                            tips={feedback.skills.tips}
+                            learningPath={feedback.skills.learningPath}
+                        />
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
