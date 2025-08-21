@@ -11,7 +11,6 @@ export const meta = () => [
     { name: 'description', content: 'Detailed overview of your resume.' },
 ];
 
-// New function to generate the AI prompt for the cover letter
 const generateCoverLetterPrompt = ({ jobTitle, jobDescription }: { jobTitle: string, jobDescription: string }) => {
     return `
     You are an expert career counselor. Your task is to write a professional and highly effective cover letter for a job applicant.
