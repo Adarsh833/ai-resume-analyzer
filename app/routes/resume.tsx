@@ -98,7 +98,7 @@ const Resume=()=>{
                     ],
                 },
             ],
-            { model: "gemini-2.0-flash" }
+            { model: "gpt-4o-mini" }
         );
 
         if (aiResponse && aiResponse.message.content) {

@@ -387,65 +387,108 @@ const Upload = () => {
         setFile(file);
     };
 
-    const handleAutofill = async (url: string) => {
-        setJobUrlError(null); // Clear previous errors
+//     const handleAutofill = async (url: string) => {
+//         setJobUrlError(null); // Clear previous errors
 
-        if (!url || !url.startsWith('http')) {
-            setJobUrlError('Please enter a valid job URL.');
-            return;
-        }
+//         if (!url || !url.startsWith('http')) {
+//             setJobUrlError('Please enter a valid job URL.');
+//             return;
+//         }
 
-        setIsProcessing(true);
-        setStatusText('Fetching job details from URL...');
+//         setIsProcessing(true);
+//         setStatusText('Fetching job details from URL...');
 
-        const prompt = `
-    Extract ONLY the company name, job title, and job description from the following URL.
-    Return STRICT JSON in this exact format:
-    {
-      "companyName": "...",
-      "jobTitle": "...",
-      "jobDescription": "..."
+//         const prompt = `
+//     Extract ONLY the company name, job title, and job description from the following URL.
+//     Return STRICT JSON in this exact format:
+//     {
+//       "companyName": "...",
+//       "jobTitle": "...",
+//       "jobDescription": "..."
+//     }
+//     Do not include explanations or extra text.
+//     URL: ${url}
+//   `;
+
+//         try {
+//             const aiResponse = await ai.chat(prompt);
+
+//             if (aiResponse && aiResponse.message.content) {
+//                 const content = aiResponse.message.content;
+//                 const textContent = typeof content === 'string' ? content : content[0]?.text;
+
+//                 let parsedData;
+//                 try {
+//                     // Try to extract JSON even if extra text exists
+//                     const match = textContent.match(/\{[\s\S]*\}/);
+//                     if (match) {
+//                         parsedData = JSON.parse(match[0]);
+//                     } else {
+//                         throw new Error("No JSON found in AI response");
+//                     }
+//                 } catch (parseErr) {
+//                     console.error("AI JSON parse error:", parseErr, "Raw:", textContent);
+//                     setJobUrlError("AI response was not valid JSON. Please try again.");
+//                     return;
+//                 }
+
+//                 setCompanyName(parsedData.companyName || "");
+//                 setJobTitle(parsedData.jobTitle || "");
+//                 setJobDescription(parsedData.jobDescription || "");
+//                 setStatusText("Job details filled successfully!");
+//             } else {
+//                 setJobUrlError("Error: Failed to get a valid response from the AI.");
+//             }
+//         } catch (error) {
+//             console.error("AI chat error:", error);
+//             setJobUrlError("Error: Failed to process URL. Please try again.");
+//         } finally {
+//             setIsProcessing(false);
+//         }
+//     };
+
+const handleAutofill = async (url: string) => {
+  setJobUrlError(null);
+
+  if (!url || !url.startsWith("http")) {
+    setJobUrlError("Please enter a valid job URL.");
+    return;
+  }
+
+  setIsProcessing(true);
+  setStatusText("Fetching job details from URL...");
+
+  try {
+    const form = new FormData();
+    form.append("url", url);
+
+    const response = await fetch("/api.scrape", {
+      method: "POST",
+      body: form,
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      setJobUrlError(data.error || "Could not extract job details.");
+      setIsProcessing(false);
+      return;
     }
-    Do not include explanations or extra text.
-    URL: ${url}
-  `;
 
-        try {
-            const aiResponse = await ai.chat(prompt);
+    // Autofill the fields
+    setCompanyName(data.companyName);
+    setJobTitle(data.jobTitle);
+    setJobDescription(data.jobDescription);
 
-            if (aiResponse && aiResponse.message.content) {
-                const content = aiResponse.message.content;
-                const textContent = typeof content === 'string' ? content : content[0]?.text;
+    setStatusText("Job details filled successfully!");
+  } catch (err) {
+    setJobUrlError("Error scraping URL.");
+  } finally {
+    setIsProcessing(false);
+  }
+};
 
-                let parsedData;
-                try {
-                    // Try to extract JSON even if extra text exists
-                    const match = textContent.match(/\{[\s\S]*\}/);
-                    if (match) {
-                        parsedData = JSON.parse(match[0]);
-                    } else {
-                        throw new Error("No JSON found in AI response");
-                    }
-                } catch (parseErr) {
-                    console.error("AI JSON parse error:", parseErr, "Raw:", textContent);
-                    setJobUrlError("AI response was not valid JSON. Please try again.");
-                    return;
-                }
 
-                setCompanyName(parsedData.companyName || "");
-                setJobTitle(parsedData.jobTitle || "");
-                setJobDescription(parsedData.jobDescription || "");
-                setStatusText("Job details filled successfully!");
-            } else {
-                setJobUrlError("Error: Failed to get a valid response from the AI.");
-            }
-        } catch (error) {
-            console.error("AI chat error:", error);
-            setJobUrlError("Error: Failed to process URL. Please try again.");
-        } finally {
-            setIsProcessing(false);
-        }
-    };
 
     const handleAnalyze = async ({ companyName, jobTitle, jobDescription, file }: { companyName: string, jobTitle: string, jobDescription: string, file: File  }) => {
         setIsProcessing(true);
